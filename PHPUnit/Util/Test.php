@@ -409,29 +409,41 @@ class PHPUnit_Util_Test
                 $extended = TRUE;
             }
 
-            $classes = array($coveredElement);
+            if (class_exists($coveredElement) || interface_exists($coveredElement)) {
+                $classes = array($coveredElement);
 
-            if ($extended) {
-                $classes = array_merge(
-                  $classes,
-                  class_implements($coveredElement),
-                  class_parents($coveredElement)
-                );
-            }
-
-            foreach ($classes as $className) {
-                if (!class_exists($className) &&
-                    !interface_exists($className)) {
-                    throw new PHPUnit_Framework_Exception(
-                      sprintf(
-                        'Trying to @cover not existing class or ' .
-                        'interface "%s".',
-                        $className
-                      )
+                if ($extended) {
+                    $classes = array_merge(
+                      $classes,
+                      class_implements($coveredElement),
+                      class_parents($coveredElement)
                     );
                 }
 
-                $codeToCoverList[] = new ReflectionClass($className);
+                foreach ($classes as $className) {
+                    if (!class_exists($className) &&
+                        !interface_exists($className)) {
+                        throw new PHPUnit_Framework_Exception(
+                          sprintf(
+                            'Trying to @cover not existing class or ' .
+                            'interface "%s".',
+                            $className
+                          )
+                        );
+                    }
+
+                    $codeToCoverList[] = new ReflectionClass($className);
+                }
+            } elseif (function_exists($coveredElement)) {
+                $codeToCoverList[] = new ReflectionFunction($coveredElement);
+            } else {
+                throw new PHPUnit_Framework_Exception(
+                  sprintf(
+                    'Trying to @cover not existing class, interface, or ' .
+                    'function "%s".',
+                    $coveredElement
+                  )
+                );
             }
         }
 
