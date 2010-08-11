@@ -184,6 +184,11 @@ abstract class PHPUnit_Framework_TestCase extends PHPUnit_Framework_Assert imple
     protected $useOutputBuffering = NULL;
 
     /**
+     * @var    array
+     */
+    protected $coveredElements = NULL;
+
+    /**
      * The name of the expected Exception.
      *
      * @var    mixed
@@ -335,6 +340,31 @@ abstract class PHPUnit_Framework_TestCase extends PHPUnit_Framework_Assert imple
         return PHPUnit_Util_Test::parseTestMethodAnnotations(
           get_class($this), $this->name
         );
+    }
+
+    /**
+     * Returns the extra covered elements for this test.
+     *
+     * @return array
+     * @since  Method available since Release 3.4.16
+     */
+    public function getCoveredElements()
+    {
+        return $this->coveredElements;
+    }
+
+    /**
+     * Adds $coveredElement to this test's extra covered elements.
+     *
+     * @param  string $coveredElement same format that @covers requires
+     * @since  Method available since Release 3.4.16
+     */
+    public function addCoveredElement($coveredElement)
+    {
+        if (empty($this->coveredElements) ||
+            !in_array($coveredElement, $this->coveredElements)) {
+            $this->coveredElements[] = $coveredElement;
+        }
     }
 
     /**

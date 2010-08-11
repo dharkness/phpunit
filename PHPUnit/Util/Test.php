@@ -145,7 +145,8 @@ class PHPUnit_Util_Test
      * @return array
      * @since  Method available since Release 3.2.0
      */
-    public static function getLinesToBeCovered($className, $methodName)
+    public static function getLinesToBeCovered($className, $methodName,
+            array $extraElements = NULL)
     {
         $codeToCoverList = array();
         $result          = array();
@@ -174,7 +175,18 @@ class PHPUnit_Util_Test
         $annotations = self::parseAnnotations($docComment);
 
         if (isset($annotations['covers'])) {
-            foreach ($annotations['covers'] as $coveredElement) {
+            if (!empty($extraElements)) {
+                $coveredElements = array_unique(
+                  array_merge(
+                    $extraElements, $annotations['covers']
+                  )
+                );
+            } else {
+                $coveredElements = $annotations['covers'];
+            }
+            unset($annotations);
+
+            foreach ($coveredElements as $coveredElement) {
                 $codeToCoverList = array_merge(
                     $codeToCoverList,
                     self::resolveCoversToReflectionObjects($coveredElement)
