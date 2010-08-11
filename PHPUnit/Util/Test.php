@@ -44,6 +44,7 @@
  */
 
 require_once 'PHPUnit/Util/Filter.php';
+require_once 'PHPUnit/Util/ReflectionFile.php';
 
 PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
 
@@ -372,6 +373,31 @@ class PHPUnit_Util_Test
                     );
                 }
             }
+        } elseif (strpos($coveredElement, '.') !== FALSE) {
+            if (is_file($coveredElement)) {
+                $file = $coveredElement;
+            } else {
+                $found = FALSE;
+
+                foreach (explode(PATH_SEPARATOR, get_include_path()) as $path) {
+                    $file = realpath($path . DIRECTORY_SEPARATOR . $coveredElement);
+                    if (is_file($file)) {
+                        $found = TRUE;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    throw new PHPUnit_Framework_Exception(
+                      sprintf(
+                        'Trying to @cover not existing file "%s".',
+                        $coveredElement
+                      )
+                    );
+                }
+            }
+
+            $codeToCoverList[] = new PHPUnit_Util_ReflectionFile($file);
         } else {
             $extended = FALSE;
 
