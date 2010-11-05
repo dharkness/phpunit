@@ -662,7 +662,14 @@ class PHPUnit_Framework_TestResult implements Countable
                         $filterGroups[] = 'PHPUNIT';
                     }
 
-                    $this->codeCoverage->append($data, $test, $filterGroups);
+                    try {
+                        $this->codeCoverage->append($data, $test, $filterGroups);
+                    } catch (Exception $cce) {
+                        if ($error === FALSE && $failure === FALSE) {
+                            $error = TRUE;
+                            $e = $cce;
+                        }
+                    }
                 }
             }
 
